@@ -36,7 +36,7 @@ This notebook will be used to document my workflow during the population genomic
 
 ### Entry 2: 2023-09-13.  
 - Reviewed fastqc output
-- We saw goof quality data for most of the read length, though the first 5bp had some variable base frequencies and the very end reads had slightly lower Q scores
+- We saw good quality data for most of the read length, though the first 5bp had some variable base frequencies and the very end reads had slightly lower Q scores
 - Using the our "fastp.sh" script, we mapped sequencing data from 2019 *P. rubens* population to genome using fastp
 - comparison of pre and post trimming html files looked good! Removed the low quality bases at head and tail of sequence
 - mapped sequences to *P. rubens* reference exome using bwa program in "mapping.sh" script
