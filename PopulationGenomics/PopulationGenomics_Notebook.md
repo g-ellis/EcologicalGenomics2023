@@ -19,6 +19,7 @@ This notebook will be used to document my workflow during the population genomic
 -   [Entry 1: 2023-09-11](#id-section1)
 -   [Entry 2: 2023-09-13](#id-section2)
 -   [Entry 3: 2023-09-18](#id-section3)
+-   [Entry 4: 2023-09-20](#id-section4)
 
 ------    
 <div id='id-section1'/>   
@@ -50,6 +51,19 @@ This notebook will be used to document my workflow during the population genomic
 ### Entry 3: 2023-09-18.
 - Visualized .sam files and checked sam FLAGs
 - Using sambamba and samtools, converted .sam files to .bam files, removed duplicate reads, and indexed files with our "process_bam.sh" script 
+
+
+------    
+<div id='id-section3'/>   
+
+
+### Entry 4: 2023-09-20.
+- calculating mapping stats using samtools with our population specific "bam_stats.sh" bash script
+- output script 2019.stats.txt is organized in rows by each sample in the population with the following columns: Num_reads, Num_R1, Num_R2, Num_Paired, Num_MateMapped, Num_Singletons, Num_MateMappedDiffChr, Coverage_depth
+- Coverage depth of this population is ~4x on average, which is low coverage but works for what we need since we're not going to be calling exact genotypes and instead will be estimating genotype likelihoods
+- using ANGSD (Analyzing Next Generation Sequencing Data) program to calculate genotype likelihoods and allele frequencies for 2019 population with "ANGSD.sh" script with the following parameters:
+* -nThreads 1 \ -remove_bads 1 \ -C 50 \ -baq 1 \ -minMapQ 20 \ -minQ 20 \ -GL 1 \ -doSaf 1
+
 
 
 
