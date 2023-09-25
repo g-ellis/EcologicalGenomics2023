@@ -20,6 +20,7 @@ This notebook will be used to document my workflow during the population genomic
 -   [Entry 2: 2023-09-13](#id-section2)
 -   [Entry 3: 2023-09-18](#id-section3)
 -   [Entry 4: 2023-09-20](#id-section4)
+-   [Entry 5: 2023-09-25](#id-section5)
 
 ------    
 <div id='id-section1'/>   
@@ -54,7 +55,7 @@ This notebook will be used to document my workflow during the population genomic
 
 
 ------    
-<div id='id-section3'/>   
+<div id='id-section4'/>   
 
 
 ### Entry 4: 2023-09-20.
@@ -63,7 +64,20 @@ This notebook will be used to document my workflow during the population genomic
 - Coverage depth of this population is ~4x on average, which is low coverage but works for what we need since we're not going to be calling exact genotypes and instead will be estimating genotype likelihoods
 - using ANGSD (Analyzing Next Generation Sequencing Data) program to calculate genotype likelihoods and allele frequencies for 2019 population with "ANGSD.sh" script with the following parameters:
 * -nThreads 1 \ -remove_bads 1 \ -C 50 \ -baq 1 \ -minMapQ 20 \ -minQ 20 \ -GL 1 \ -doSaf 1
+- output is site allele frequency (saf) likelihoods 
 
+
+------    
+<div id='id-section5'/>   
+
+
+### Entry 5: 2023-09-25.
+- estimating the site frequency spectrum (sfs) using saf likelihoods and our ANGSD_doTheta.sh, then using this to estimate nucleotide diversity and F_ST_ : mypop vs. black spruce
+| - theta_w_ = segragating sites
+| - theta_pi_ = pairwise diversity
+| - Tajima's D = (theta_pi_ - theta_w_)/SD
+- using an unfolded sfs since we don't know if the reference allele is the ancestral allele or not. 
+- See Summary_diversity.R for diversity metric summary plots
 
 
 
