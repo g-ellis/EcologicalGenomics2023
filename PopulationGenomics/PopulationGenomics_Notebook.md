@@ -21,6 +21,7 @@ This notebook will be used to document my workflow during the population genomic
 -   [Entry 3: 2023-09-18](#id-section3)
 -   [Entry 4: 2023-09-20](#id-section4)
 -   [Entry 5: 2023-09-25](#id-section5)
+-   [Entry 6: 2023-09-27](#id-section6)
 
 ------    
 <div id='id-section1'/>   
@@ -80,5 +81,14 @@ This notebook will be used to document my workflow during the population genomic
 - See Summary_diversity.R for diversity metric summary plots
 
 
+------    
+<div id='id-section6'/>   
+
+
+### Entry 6: 2023-09-27.
+- calculating Fst between 2019 population and black spruce
+- Within species Fst for trees is usually around 0.05, but between species is closer to 0.1 or 0.2
+- pcANGSD for population structure analysis (PCA) across all collected red spruce populations
+- ancestry plot for K=2
 
 
