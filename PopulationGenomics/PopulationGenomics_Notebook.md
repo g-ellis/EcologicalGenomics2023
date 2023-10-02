@@ -22,6 +22,7 @@ This notebook will be used to document my workflow during the population genomic
 -   [Entry 4: 2023-09-20](#id-section4)
 -   [Entry 5: 2023-09-25](#id-section5)
 -   [Entry 6: 2023-09-27](#id-section6)
+-   [Entry 7: 2023-10-02](#id-section7)
 
 ------    
 <div id='id-section1'/>   
@@ -42,7 +43,7 @@ This notebook will be used to document my workflow during the population genomic
 - We saw good quality data for most of the read length, though the first 5bp had some variable base frequencies and the very end reads had slightly lower Q scores
 - Using the our "fastp.sh" script, we mapped sequencing data from 2019 *P. rubens* population to genome using fastp
 - comparison of pre and post trimming html files looked good! Removed the low quality bases at head and tail of sequence
-- mapped sequences to Norway spruce (*P. rubias*) reference exome using bwa program in "mapping.sh" script
+- mapped sequences to Norway spruce (*P. abies*) reference exome using bwa program in "mapping.sh" script
 
 
 
@@ -87,8 +88,21 @@ This notebook will be used to document my workflow during the population genomic
 
 ### Entry 6: 2023-09-27.
 - calculating Fst between 2019 population and black spruce
+- unweighted: 0.094249	
+- weighted: 0.338065
 - Within species Fst for trees is usually around 0.05, but between species is closer to 0.1 or 0.2
 - pcANGSD for population structure analysis (PCA) across all collected red spruce populations
 - ancestry plot for K=2
+
+------    
+<div id='id-section7'/>   
+
+
+### Entry 7: 2023-10-02.
+- identifying outlier loci based on 2 Eigen vectors
+- using Norway spruce (*P. abies*) annotated genome to identify genes that outlier loci SNPs are in
+- Interestingly, PC1 has fewer outlier loci than those separated by PC2 (13 vs. 212)
+- Used PlantGenIE to see what possible functions are identified genes have
+- PFAM enrichment for PC1 outliers reveals 9 protein families with significant p-value
 
 

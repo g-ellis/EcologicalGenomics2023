@@ -83,3 +83,23 @@ barplot(t(q)[,ord],
 text(tapply(1:nrow(pops),pops[ord,2],mean),-0.05,unique(pops[ord,2]),xpd=T)
 abline(v=cumsum(sapply(unique(pops[ord,2]),function(x){sum(pops[ord,2]==x)})),col=1,lwd=1.2)
 
+
+#Trying with k=3
+
+q3 <- read.table("allRS_poly.admix.3.Q", sep=" ", header=F)
+
+K3=dim(q3)[2] #Find the level of K modeled
+
+## order according to population code
+ord<-order(pops[,2])
+
+# make the plot:
+barplot(t(q3)[,ord],
+        col=cols[1:K3],
+        space=0,border=NA,
+        xlab="Populations",ylab="Admixture proportions",
+        main=paste0("Red spruce K=",K3))
+text(tapply(1:nrow(pops),pops[ord,2],mean),-0.05,unique(pops[ord,2]),xpd=T)
+abline(v=cumsum(sapply(unique(pops[ord,2]),function(x){sum(pops[ord,2]==x)})),col=1,lwd=1.2)
+
+
