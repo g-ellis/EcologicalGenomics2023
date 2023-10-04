@@ -20,6 +20,7 @@ dim(p)
 p_filtered = p[which(p$kept_sites==1),]
 dim(p_filtered)
 
+
 # How many sites got filtered out when testing for selection? -> 132274 Why?
 
 ## make manhattan plot
@@ -44,7 +45,7 @@ sel_contig <- p_filtered[which(pval==min(pval$p_PC1)),c("chromo","position")]
 sel_contig
 
 # get all the outliers with p-values below some cutoff
-cutoff=1e-4   # equals a 1 in 5,000 probability
+cutoff=1e-3   # equals a 1 in 500 probability
 outlier_contigs <- p_filtered[which(pval$p_PC1<cutoff),c("chromo","position")]
 outlier_contigs_pc2 <- p_filtered[which(pval$p_PC2<cutoff),c("chromo","position")]
 
@@ -57,15 +58,31 @@ dim(outlier_contigs_pc2)[1]
 length(unique(outlier_contigs$chromo))
 length(unique(outlier_contigs_pc2$chromo))
 
-write.table(unique(outlier_contigs$chromo),
+write.table(unique(outlier_contigs$chromo), # this will be used for GEA later
             "allRS_poly_PC1_outlier_contigs.txt", 
-            sep="\t",
+            sep=":",
             quote=F,
             row.names=F,
             col.names=F)
 
 write.table(unique(outlier_contigs_pc2$chromo),
             "allRS_poly_PC2_outlier_contigs.txt", 
+            sep=":",
+            quote=F,
+            row.names=F,
+            col.names=F)
+
+
+# selecting PC values that we'll be using as our covariates in the GEA
+COV <- as.matrix(read.table("allRS_poly.cov"))
+
+PCA <- eigen(COV)
+
+data=as.data.frame(PCA$vectors)
+data=data[,c(1:2)] # the second number here is the number of PC axes you want to keep
+
+write.table(data,
+            "allRS_poly_genPC1_2.txt",
             sep="\t",
             quote=F,
             row.names=F,

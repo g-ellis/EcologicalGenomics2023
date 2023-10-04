@@ -23,6 +23,7 @@ This notebook will be used to document my workflow during the population genomic
 -   [Entry 5: 2023-09-25](#id-section5)
 -   [Entry 6: 2023-09-27](#id-section6)
 -   [Entry 7: 2023-10-02](#id-section7)
+-   [Entry 8: 2023-10-04](#id-section8)
 
 ------    
 <div id='id-section1'/>   
@@ -102,7 +103,15 @@ This notebook will be used to document my workflow during the population genomic
 - identifying outlier loci based on 2 Eigen vectors
 - using Norway spruce (*P. abies*) annotated genome to identify genes that outlier loci SNPs are in
 - Interestingly, PC1 has fewer outlier loci than those separated by PC2 (13 vs. 212)
-- Used PlantGenIE to see what possible functions are identified genes have
+- Used PlantGenIE to see what possible functions our identified genes have
 - PFAM enrichment for PC1 outliers reveals 9 protein families with significant p-value
 
+------    
+<div id='id-section8'/>   
+
+
+### Entry 8: 2023-10-04.
+- genotype-environment associations
+  - outlier list (PC1) -> genetic PC1 and PC2 as covariants -> use bioClim variables for E of GEA
+- bio12 and bio10 were most correlated with PC1 and PC2, respectively
 
