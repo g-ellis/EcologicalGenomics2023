@@ -7,21 +7,21 @@ library(RcppCNPy) # for reading python numpy (.npy) files
 
 ### read in selection statistics (these are chi^2 distributed)
 
-selectionstats<-npyLoad("allRS_poly.selection.npy")
+selectionstats<-npyLoad("allRS_poly.selection.npy") # this file was made using e=2
 
 # convert test statistic to p-value
 pval <- as.data.frame(1-pchisq(selectionstats,1))
 names(pval) = c("p_PC1", "p_PC2")
 
 ## read positions, associate P-values with SNP meta-data
-p <- read.table("allRS_poly_mafs.sites",sep="\t",header=T, stringsAsFactors=T)
+p <- read.table("allRS_poly_mafs.sites",sep="\t",header=T, stringsAsFactors=T) # this file was made using e=2
 dim(p)
 
 p_filtered = p[which(p$kept_sites==1),]
 dim(p_filtered)
+# How many sites got filtered out when testing for selection? -> (461582 kept) 132274 Why?
 
 
-# How many sites got filtered out when testing for selection? -> 132274 Why?
 
 ## make manhattan plot
 plot(-log10(pval$p_PC1),
@@ -51,12 +51,12 @@ outlier_contigs_pc2 <- p_filtered[which(pval$p_PC2<cutoff),c("chromo","position"
 
 
 # how many outlier loci < the cutoff?
-dim(outlier_contigs)[1]
-dim(outlier_contigs_pc2)[1]
+dim(outlier_contigs)[1] #675
+dim(outlier_contigs_pc2)[1] #1577
 
 # how many unique contigs harbor outlier loci?
-length(unique(outlier_contigs$chromo))
-length(unique(outlier_contigs_pc2$chromo))
+length(unique(outlier_contigs$chromo)) #478
+length(unique(outlier_contigs_pc2$chromo)) #936
 
 write.table(unique(outlier_contigs$chromo), # this will be used for GEA later
             "allRS_poly_PC1_outlier_contigs.txt", 
@@ -73,16 +73,21 @@ write.table(unique(outlier_contigs_pc2$chromo),
             col.names=F)
 
 
-# selecting PC values that we'll be using as our covariates in the GEA
-COV <- as.matrix(read.table("allRS_poly.cov"))
 
-PCA <- eigen(COV)
+### move back to bash scripting to parse out gene IDs ... e1_outlier_geneID.txt ###
 
-data=as.data.frame(PCA$vectors)
+
+
+### selecting PC values that we'll be using as our covariates in the GEA ###
+COV_e2 <- as.matrix(read.table("e2_allRS_poly.cov"))
+
+PCA_e2 <- eigen(COV_e2)
+
+data=as.data.frame(PCA_e2$vectors)
 data=data[,c(1:2)] # the second number here is the number of PC axes you want to keep
 
 write.table(data,
-            "allRS_poly_genPC1_2.txt",
+            "e2_allRS_poly_genPC1_2.txt",
             sep="\t",
             quote=F,
             row.names=F,

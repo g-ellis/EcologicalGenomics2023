@@ -1,0 +1,8 @@
+ID,Description,Statistics (mt/mpat | nt/npat),P-value,q-value,Namespace
+GO:0032502,developmental process,757/27238 | 38/715,0.0001205,0.3059,BP
+GO:0016849,phosphorus-oxygen lyase activity,8/777 | 3/17,0.0004567,0.4611,MF
+GO:0044422,organelle part,3050/7000 | 114/208,0.0006159,0.4611,CC
+GO:0032787,monocarboxylic acid metabolic process,639/1956 | 31/58,0.0007262,0.4611,BP
+GO:0019637,organophosphate metabolic process,990/4239 | 41/112,0.0009483,0.4817,BP
+GO:0055044,symplast,193/18360 | 13/504,0.002668,0.9682,CC
+GO:0030054,cell junction,193/18360 | 13/504,0.002668,0.9682,CC

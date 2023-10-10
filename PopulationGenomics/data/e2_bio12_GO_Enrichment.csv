@@ -1,0 +1,22 @@
+ID,Description,Statistics (mt/mpat | nt/npat),P-value,q-value,Namespace
+GO:0032502,developmental process,757/27238 | 24/367,0.0001084,0.2008,BP
+GO:0047262,polygalacturonate 4-alpha-galacturonosyltransferase activity,22/339 | 3/4,0.0009166,0.7855,MF
+GO:0004814,arginine-tRNA ligase activity,5/148 | 2/3,0.00272,0.7855,MF
+GO:0006420,arginyl-tRNA aminoacylation,5/148 | 2/3,0.00272,0.7855,BP
+GO:0044462,external encapsulating structure part,4/289 | 2/7,0.002958,0.7855,CC
+GO:0016849,phosphorus-oxygen lyase activity,8/777 | 2/9,0.003224,0.7855,MF
+GO:0015101,organic cation transmembrane transporter activity,6/459 | 2/8,0.003858,0.7855,MF
+GO:0044425,membrane part,7258/10135 | 109/133,0.003887,0.7855,CC
+GO:0010817,regulation of hormone levels,145/734 | 5/7,0.004218,0.7855,BP
+GO:0006836,neurotransmitter transport,10/3668 | 2/39,0.004698,0.7855,BP
+GO:0005326,neurotransmitter transporter activity,10/2083 | 2/24,0.005413,0.7855,MF
+GO:0090603,sieve element differentiation,3/104 | 2/5,0.005491,0.7855,BP
+GO:0018202,peptidyl-histidine modification,9/269 | 2/4,0.005785,0.7855,BP
+GO:0005793,endoplasmic reticulum-Golgi intermediate compartment,8/2902 | 2/44,0.005938,0.7855,CC
+GO:0032787,monocarboxylic acid metabolic process,639/1956 | 17/31,0.008432,0.9799,BP
+GO:0002181,cytoplasmic translation,27/988 | 3/17,0.009595,0.9799,BP
+GO:0016598,protein arginylation,8/179 | 2/4,0.01007,0.9799,BP
+GO:0008519,ammonium transmembrane transporter activity,29/459 | 3/8,0.01028,0.9799,MF
+GO:0032501,multicellular organismal process,728/27238 | 18/367,0.01044,0.9799,BP
+GO:0099080,supramolecular complex,256/18360 | 9/259,0.01072,0.9799,CC
+GO:0015112,nitrate transmembrane transporter activity,1/90 | 1/1,0.01111,0.9799,MF

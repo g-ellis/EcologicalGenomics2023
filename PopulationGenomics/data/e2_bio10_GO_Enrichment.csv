@@ -1,0 +1,4 @@
+"ID","Description","Statistics (mt/mpat | nt/npat)","P-value","q-value","Namespace"
+"GO:0016744","transferase activity, transferring aldehyde or ketonic groups","17/7771 | 2/23","0.001109","0.6365","MF"
+"GO:0051180","vitamin transport","1/3668 | 1/7","0.001908","0.6365","BP"
+"GO:0090482","vitamin transmembrane transporter activity","1/1527 | 1/5","0.003274","0.7280","MF"

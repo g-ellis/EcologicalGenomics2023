@@ -14,7 +14,7 @@ coords <- read.csv("https://www.uvm.edu/~kellrlab/forClass/colebrookSampleMetaDa
 
 #The chunk below refers to your bamlist file that you transferred during last week's PCA/admixture analysis. It should be the same one you want to use here -- if your sample list for analysis changes in the future, you'll need a different bamlist!
   
-names <- read.table("allRS_bam.list")
+names <- read.table("e2_allRS_bam.list")
 names <- unlist(strsplit(basename(as.character(names[,1])), split = ".sorted.rmdup.bam")) #removing path to just get sample ID
 split = strsplit(names, "_")
 pops <- data.frame(names[1:95], do.call(rbind, split[1:95]))
@@ -55,15 +55,17 @@ dimdesc(clim_PCA)[1:2]
 # PC1 has strongest correlation with Bio 12 (mean precipitation) and PC2 has the strongest correlation with Bio 10 (mean temperature of warmest quarter) --> these are the two bioClim variables we'll use for our GEA
 
 write.table(scale(angsd_coords_clim["bio12"]),
-            "allRS_bio12.txt",
+            "e2_allRS_bio12.txt",
             sep="\t",
             quote=F,
             row.names = F,
             col.names=F)
 
 write.table(scale(angsd_coords_clim["bio10"]),
-            "allRS_bio10.txt",
+            "e2_allRS_bio10.txt",
             sep="\t",
             quote=F,
             row.names = F,
             col.names=F)
+
+### back to bash to run GEA ###

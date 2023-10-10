@@ -1,0 +1,114 @@
+---
+title: "PopGen_HW1"
+author: "Gwen"
+date: "2023-10-04"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+Earlier we determined that k=2 is our best population structure for our red spruce populations, I've rerun pcANGSD_selection.sh with e 1
+```{r}
+###################################
+#  Selection scans for red spruce #
+###################################
+
+library(RcppCNPy) # for reading python numpy (.npy) files
+
+
+### read in selection statistics (these are chi^2 distributed)
+
+e1_selectionstats<-npyLoad("eigen1.selection.npy")
+
+# convert test statistic to p-value
+pval_e1 <- as.data.frame(1-pchisq(e1_selectionstats,1))
+names(pval_e1) = "p_PC1"
+
+## read positions
+pos_e1 <- read.table("eigen1_allRS_poly_mafs.sites",sep="\t",header=T, stringsAsFactors=T)
+dim(pos_e1)
+
+pos_e1_filtered = pos_e1[which(p$kept_sites==1),]
+dim(pos_e1_filtered)
+
+# How many sites got filtered out when testing for selection? Why? --> removing loci that didn't get tested
+
+
+```
+
+
+
+
+making manhattan plots to visually see outliers
+```{r}
+## make manhattan plot
+plot(-log10(pval_e1$p_PC1),
+  col=pos_e1_filtered$chromo,
+  xlab="Position",
+  ylab="-log10(p-value)",
+  main="Selection outliers: pcANGSD e=1 (K2)")
+
+# We can zoom in if there's something interesting near a position...
+
+plot(-log10(pval_e1$p_PC1[2e05:2.01e05]),
+  col=pos_e1_filtered$chromo, 
+  xlab="Position", 
+  ylab="-log10(p-value)", 
+  main="Selection outliers: pcANGSD e=1 (K2)")
+```
+
+
+
+```{r}
+# get the contig with the lowest p-value for selection, as an example
+sel_contig <- pos_e1_filtered[which(pval_e1==min(pval_e1$p_PC1)),c("chromo","position")]
+sel_contig
+
+# get all the outliers with p-values below some cutoff
+cutoff=1e-3   # equals a 1 in 500 probability
+e1_outlier_contigs <- pos_e1_filtered[which(pval_e1$p_PC1<cutoff),c("chromo","position")]
+
+# how many outlier loci < the cutoff? -> 335
+dim(e1_outlier_contigs)[1]
+
+# how many unique contigs harbor outlier loci? -> 241
+length(unique(e1_outlier_contigs$chromo))
+
+```
+
+
+```{r}
+write.table(unique(e1_outlier_contigs$chromo), # this will be used for GEA later
+            "e1_allRS_poly_PC1_outlier_contigs.txt", 
+            sep=":",
+            quote=F,
+            row.names=F,
+            col.names=F)
+
+```
+
+move back to bash scripting to parse out gene IDs ... e1_outlier_geneID.txt 
+
+
+
+
+```{r}
+# selecting PC values that we'll be using as our covariates in the GEA
+COV <- as.matrix(read.table("allRS_poly.cov"))
+
+PCA <- eigen(COV)
+
+data=as.data.frame(PCA$vectors)
+data=data[,c(1:2)] # the second number here is the number of PC axes you want to keep
+
+write.table(data,
+            "allRS_poly_genPC1_2.txt",
+            sep="\t",
+            quote=F,
+            row.names=F,
+            col.names=F)
+```
+
