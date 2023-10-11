@@ -1,3 +1,8 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
 # Population genomics noteook
 
 ## Author: Gwen Ellis
@@ -35,7 +40,7 @@ This notebook will be used to document my workflow during the population genomic
 - Fastqc of single sample in *P. rubens* data and analyzed quality
 
 
-------    
+
 <div id='id-section2'/>   
 
 
@@ -48,7 +53,7 @@ This notebook will be used to document my workflow during the population genomic
 
 
 
-------    
+ 
 <div id='id-section3'/>   
 
 
@@ -56,8 +61,7 @@ This notebook will be used to document my workflow during the population genomic
 - Visualized .sam files and checked sam FLAGs
 - Using sambamba and samtools, converted .sam files to .bam files, removed duplicate reads, and indexed files with our "process_bam.sh" script 
 
-
-------    
+ 
 <div id='id-section4'/>   
 
 
@@ -70,20 +74,20 @@ This notebook will be used to document my workflow during the population genomic
 - output is site allele frequency (saf) likelihoods 
 
 
-------    
+  
 <div id='id-section5'/>   
 
 
 ### Entry 5: 2023-09-25.
 - estimating the site frequency spectrum (sfs) using saf likelihoods and our ANGSD_doTheta.sh, then using this to estimate nucleotide diversity and F_ST_ : mypop vs. black spruce
-| - theta_w_ = segragating sites
-| - theta_pi_ = pairwise diversity
-| - Tajima's D = (theta_pi_ - theta_w_)/SD
+  - theta_w_ = segragating sites
+  - theta_pi_ = pairwise diversity
+  - Tajima's D = (theta_pi_ - theta_w_)/SD
 - using an unfolded sfs since we don't know if the reference allele is the ancestral allele or not. 
 - See Summary_diversity.R for diversity metric summary plots
 
 
-------    
+
 <div id='id-section6'/>   
 
 
@@ -95,7 +99,7 @@ This notebook will be used to document my workflow during the population genomic
 - pcANGSD for population structure analysis (PCA) across all collected red spruce populations
 - ancestry plot for K=2
 
-------    
+
 <div id='id-section7'/>   
 
 
@@ -106,7 +110,7 @@ This notebook will be used to document my workflow during the population genomic
 - Used PlantGenIE to see what possible functions our identified genes have
 - PFAM enrichment for PC1 outliers reveals 9 protein families with significant p-value
 
-------    
+   
 <div id='id-section8'/>   
 
 
