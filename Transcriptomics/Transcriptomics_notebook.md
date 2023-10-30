@@ -26,6 +26,8 @@ This notebook will be used to document my workflow during the population genomic
 -   [Entry 3: 2023-10-16](#id-section3)
 -   [Entry 4: 2023-10-18](#id-section4)
 -   [Entry 5: 2023-10-23](#id-section5)
+-   [Entry 6: 2023-10-25](#id-section6)
+-   [Entry 7: 2023-10-30](#id-section7)
 
 
 ------    
@@ -78,3 +80,32 @@ This notebook will be used to document my workflow during the population genomic
   - checkking a few of the most DEGs show that expression under OA and OW is not additive for OWA
 - making Euler diagram for F0 differential gene expression compared to ambient (AM)
   - most overlap between OW and OWA
+  
+  
+  
+
+<div id='id-section6'/>   
+
+### Entry 6: 2023-10-25.
+- making a WGCNA for samples: original module clustering is first agnostic of meta-data, but can test if there is a correlation between modules and sample groups
+  - before starting WGCNA, remove all genes with counts < 15 in more than 75% of samples using DESeq
+  - detect outliers and make basic PCA
+  - normalize gene counts
+  - choose soft threshold power --> 6 (strength of correlation)
+  - signed WGCNA (up or down regulation matters for modules)
+  - visualize cluster dendrogram, blue and turquoise have the most genes
+
+  
+  
+
+<div id='id-section7'/>   
+
+### Entry 7: 2023-10-30.
+- continue working on WGCNA --> Do any of the eigengenes from our modules associate with our measured traits? (Pearson's correlation coefficient)
+  - the yellow module for example has a few significant associations. When we look at the eigengene values across samples for this module, we see that there is a split between OWA+OW and OA+AM
+- fitness meta data = (EPR (egg production rate) + HS (hatching succession) + survival + development time)
+- with 6 power threshold, we see significant correlation between the grey module and mean fitness indicating that there could be something functionally interesting in that module that could be separated out by increasing power threshold
+
+
+
+
