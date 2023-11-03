@@ -21,7 +21,7 @@ library(eulerr)
 
 
 Import Counts Matrix and Sample ID tables into R and DESeq2
-```{r setup, include=FALSE}
+```{r}
 
 # Import the counts matrix
 countsTable <- read.table("salmon.isoform.counts.matrix.filteredAssembly", header=TRUE, row.names=1)

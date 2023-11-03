@@ -28,6 +28,7 @@ This notebook will be used to document my workflow during the population genomic
 -   [Entry 5: 2023-10-23](#id-section5)
 -   [Entry 6: 2023-10-25](#id-section6)
 -   [Entry 7: 2023-10-30](#id-section7)
+-   [Entry 8: 2023-11-01](#id-section8)
 
 
 ------    
@@ -104,7 +105,20 @@ This notebook will be used to document my workflow during the population genomic
 - continue working on WGCNA --> Do any of the eigengenes from our modules associate with our measured traits? (Pearson's correlation coefficient)
   - the yellow module for example has a few significant associations. When we look at the eigengene values across samples for this module, we see that there is a split between OWA+OW and OA+AM
 - fitness meta data = (EPR (egg production rate) + HS (hatching succession) + survival + development time)
-- with 6 power threshold, we see significant correlation between the grey module and mean fitness indicating that there could be something functionally interesting in that module that could be separated out by increasing power threshold
+- with 6 power threshold, we see significant correlation between the grey module and mean fitness indicating that there could be something functionally interesting in that module that could be separated out by increasing power threshold'
+  
+  
+
+<div id='id-section8'/>   
+
+### Entry 7: 2023-11-01.
+- GO Mann-Whitney U: functional enrichment test that's based on whole distribution of DGE vs. expected
+- Pipeline that we'll use requires specific file formats
+  - a table of measure of interest: two columns of comma-separated values: gene id, continuous measure of change such as log(fold-change). (This is generated in DESeq2_to_GOMWU.Rmd)
+  - table of GO annotations for your sequences: two-column (gene id - GO terms), tab-delimited, one line per gene, multiple GO terms separated by semicolon. (trinotate annotation .txt file)
+  - a set of scripts: GO_MWU.R, gomwu_a.pl, gomwu_b.pl, gomwu.functions.R 
+  - a GO database, hierarchy file (go.obo)
+
 
 
 
