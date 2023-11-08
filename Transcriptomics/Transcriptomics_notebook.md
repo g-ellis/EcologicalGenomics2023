@@ -13,11 +13,11 @@ output:
 
 ### Start Date: 2023.10.09
 
-### End Date: 2023.XX.XX
+### End Date: 2023.11.09
 
 ### Project Descriptions:
 
-This notebook will be used to document my workflow during the population genomics module of the 2023 Ecological Genomics course.
+This notebook will be used to document my workflow during the transcriptomics module of the 2023 Ecological Genomics course.
 
 # Table of Contents:
 
@@ -78,7 +78,7 @@ This notebook will be used to document my workflow during the population genomic
 - OA_F2_Rep2 (ocean acidification) could also be an outlier based on read count plot and heat map
 - plotting PCAs
 - testing for differential gene expression across generations and treatments
-  - checkking a few of the most DEGs show that expression under OA and OW is not additive for OWA
+  - checking a few of the most DEGs show that expression under OA and OW is not additive for OWA
 - making Euler diagram for F0 differential gene expression compared to ambient (AM)
   - most overlap between OW and OWA
   

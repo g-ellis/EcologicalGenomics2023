@@ -1,0 +1,436 @@
+---
+title: "DESeq2 - nonfiltered assembly"
+author: "Gwen"
+date: "2023-11-04"
+output: html_document
+---
+
+libraries needed
+```{r}
+library(DESeq2)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(scales)
+library(ggpubr)
+library(wesanderson)
+library(vsn)
+library(pheatmap)
+library(eulerr)
+```
+
+
+Import Counts Matrix and Sample ID tables into R and DESeq2
+```{r}
+
+# Import the counts matrix
+nf_countsTable <- read.table("salmon.isoform.counts.matrix", header=TRUE, row.names=1)
+
+nf_countsTableRound <- round(nf_countsTable) # bc DESeq2 doesn't like decimals (and Salmon outputs data with decimals)
+
+#import the sample description table
+conds <- read.delim("ahud_samples_R.txt", header=TRUE, stringsAsFactors = TRUE, row.names=1)
+
+```
+
+
+Explore the counts data a bit
+```{r}
+# Let's see how many reads we have for each sample
+colSums(nf_countsTableRound)
+mean(colSums(nf_countsTableRound)) # 20652727, more reads than the filtered and grouped assembly
+
+barplot(colSums(nf_countsTableRound), names.arg=colnames(nf_countsTableRound),cex.names=0.5, las=3,ylim=c(0,25000000), main ="Total assembly", ylab = "reads per sample")
+abline(h=mean(colSums(nf_countsTableRound)), col="cornflowerblue", lwd=2)
+
+# the average number of counts per gene
+rowSums(nf_countsTableRound)
+mean(rowSums(nf_countsTableRound)) # 2245.401 (new assembly may have a lower mapping rate than the original one but there are fewer genes to map to so these reads get collapsed and the number of counts per gene increases)
+median(rowSums(nf_countsTableRound)) # 117
+
+apply(nf_countsTableRound,2,mean) # 2 in the apply function does the action across columns
+apply(nf_countsTableRound,1,mean) # 1 in the apply function does the action across rows
+hist(apply(nf_countsTableRound,1,mean),xlim=c(0,10000), ylim=c(0,60000),breaks=1000) # lots of genes with low expression
+
+```
+
+
+Create a DESeq object and define the experimental design
+```{r}
+#### Create a DESeq object and define the experimental design here with the tilde
+nf_dds <- DESeqDataSetFromMatrix(countData = nf_countsTableRound, colData=conds, 
+                              design= ~ generation + treatment)
+
+dim(nf_dds) #[1] 349516     38
+
+# Filter out genes with too few reads - remove all genes with counts < 15 in more than 75% of samples, so ~28 (n=38)
+## suggested by WGCNA on RNAseq FAQ
+nf_dds <- nf_dds[rowSums(counts(nf_dds) >= 15) >= 28,]
+nrow(nf_dds) # 56,701
+
+# Run the DESeq model to test for differential gene expression
+nf_dds <- DESeq(nf_dds)
+
+# List the results you've generated
+resultsNames(nf_dds)
+```
+
+Check the quality of the data by sample clustering and visualization
+```{r}
+# The goal of transformation "is to remove the dependence of the variance on the mean, particularly the high variance of the logarithm of count data when the mean is low."
+
+library(pheatmap)
+library(vsn)
+
+# this gives log2(n + 1)
+nf_ntd <- normTransform(nf_dds)
+meanSdPlot(assay(nf_ntd)) # red fitted line shows that standard deviation for transcripts is pretty low (rank(mean)=expression level)
+
+# Variance stabilizing transformation
+nf_vsd <- vst(nf_dds, blind=FALSE) # reduces variation in more lowly expressed transcripts
+meanSdPlot(assay(nf_vsd))
+           
+
+nf_sampleDists <- dist(t(assay(nf_vsd)))
+
+library(RColorBrewer)
+nf_sampleDistMatrix <- as.matrix(nf_sampleDists)
+rownames(nf_sampleDistMatrix) <- paste(nf_vsd$treatment, nf_vsd$generation, sep="-")
+colnames(nf_sampleDistMatrix) <- NULL
+colors <- colorRampPalette( rev(brewer.pal(9, "Blues")) )(255)
+pheatmap(nf_sampleDistMatrix,
+         clustering_distance_rows=nf_sampleDists,
+         clustering_distance_cols=nf_sampleDists,
+         col=colors)
+```
+
+PCA to visualize global gene expression patterns
+```{r}
+# first transform the data for plotting using variance stabilization
+nf_vsd <- vst(nf_dds, blind=FALSE)
+
+nf_pcaData <- plotPCA(nf_vsd, intgroup=c("treatment","generation"), returnData=TRUE)
+nf_percentVar <- round(100 * attr(nf_pcaData,"percentVar"))
+
+ggplot(nf_pcaData, aes(PC1, PC2, color=treatment, shape=generation)) +  #more clustering by generation than by treatment
+  geom_point(size=3) +
+  xlab(paste0("PC1: ",nf_percentVar[1],"% variance")) +
+  ylab(paste0("PC2: ",nf_percentVar[2],"% variance")) + 
+  ggtitle("Total assembly") +
+  ylim(-40, 40) + xlim(-40, 70)
+  coord_fixed() 
+```
+
+Let's plot the PCA by generation in four panels
+```{r}
+nf_data <- plotPCA(nf_vsd, intgroup=c("treatment","generation"), returnData=TRUE)
+nf_percentVar <- round(100 * attr(nf_pcaData,"percentVar"))
+
+###########  
+
+nf_dataF0 <- subset(nf_pcaData, generation == 'F0')
+
+F0 <- ggplot(nf_dataF0, aes(PC1, PC2)) +
+  geom_point(size=10, stroke = 1.5, aes(fill=treatment, shape=treatment)) +
+  xlab(paste0("PC1: ",nf_percentVar[1],"% variance")) +
+  ylab(paste0("PC2: ",nf_percentVar[2],"% variance")) +
+  ylim(-10, 25) + xlim(-40, 10)+ # zoom for F0 with new assembly
+  #ylim(-40, 25) + xlim(-50, 50)+ # new assembly limits
+  #ylim(-40, 20) + xlim(-50, 30)+
+  scale_shape_manual(values=c(21,22,23,24), labels = c("Ambient", "Acidification","Warming", "OWA"))+
+  scale_fill_manual(values=c('#6699CC',"#F2AD00","#00A08A", "#CC3333"), labels = c("Ambient", "Acidification","Warming", "OWA"))+
+  ##theme(legend.position = c(0.83,0.85), legend.background = element_blank(), legend.box.background = element_rect(colour = "black")) +
+  #guides(shape = guide_legend(override.aes = list(shape = c( 21,22, 23, 24))))+
+  #guides(fill = guide_legend(override.aes = list(shape = c( 21,22, 23, 24))))+
+  #guides(shape = guide_legend(override.aes = list(size = 5)))+
+  theme_bw() +
+  theme(legend.position = "none") +
+  theme(panel.border = element_rect(color = "black", fill = NA, size = 4))+
+  theme(text = element_text(size = 20)) +
+  theme(legend.title = element_blank())
+
+F0
+
+
+#png("PCA_F0.png", res=300, height=5, width=5, units="in")
+#ggarrange(F0, nrow = 1, ncol=1)
+#dev.off()
+
+################# F2
+
+```
+
+
+
+Check on the DE results from the DESeq command way above
+```{r}
+resultsNames(nf_dds)
+#[1] "Intercept"            "generation_F11_vs_F0" "generation_F2_vs_F0"  "generation_F4_vs_F0" 
+#[5] "treatment_OA_vs_AM"   "treatment_OW_vs_AM"   "treatment_OWA_vs_AM" 
+
+########### Warming+Acidification vs. Ambient ##########
+
+nf_resAM_OWA <- results(nf_dds, name="treatment_OWA_vs_AM", alpha=0.05)
+
+nf_resAM_OWA <- nf_resAM_OWA[order(nf_resAM_OWA$padj),] #adjusting the p-value to correct for multiple testing
+head(nf_resAM_OWA)  
+#                           baseMean log2FoldChange     lfcSE      stat      pvalue        padj
+#                          <numeric>      <numeric> <numeric> <numeric>   <numeric>   <numeric>
+# TRINITY_DN290_c0_g1_i49    79.8092       2.172259  0.315138   6.89305 5.46097e-12 3.03543e-07
+# TRINITY_DN2556_c0_g1_i11   59.0485       1.973204  0.306125   6.44575 1.15033e-10 3.19700e-06
+# TRINITY_DN3338_c1_g1_i16   55.8665       1.557720  0.264716   5.88449 3.99283e-09 5.54843e-05
+# TRINITY_DN3600_c0_g1_i2    79.6263      -2.186750  0.370742  -5.89831 3.67250e-09 5.54843e-05
+# TRINITY_DN2730_c0_g1_i8   679.3463      -0.966642  0.166392  -5.80943 6.26856e-09 6.96864e-05
+# TRINITY_DN7310_c0_g1_i25   94.3049      -1.021295  0.179962  -5.67507 1.38634e-08 9.63226e-05
+
+summary(nf_resAM_OWA)
+# out of 56701 with nonzero total read count
+# adjusted p-value < 0.05
+# LFC > 0 (up)       : 135, 0.24%
+# LFC < 0 (down)     : 121, 0.21%
+# outliers [1]       : 17, 0.03%
+# low counts [2]     : 1100, 1.9%
+# (mean count < 22)
+
+#################. Warming vs. Ambient ##################
+nf_resAM_OW <- results(nf_dds, name="treatment_OW_vs_AM", alpha=0.05)
+
+nf_resAM_OW <- nf_resAM_OW[order(nf_resAM_OW$padj),]
+head(nf_resAM_OW)  
+#                           baseMean log2FoldChange     lfcSE      stat      pvalue       padj
+#                          <numeric>      <numeric> <numeric> <numeric>   <numeric>  <numeric>
+# TRINITY_DN3338_c1_g1_i16   55.8665       1.527278  0.271436   5.62666 1.83733e-08 0.00104147
+# TRINITY_DN9351_c0_g1_i1   108.2393       1.507579  0.275051   5.48110 4.22689e-08 0.00119799
+# TRINITY_DN12393_c0_g1_i4   28.4878       1.349899  0.256064   5.27172 1.35149e-07 0.00255359
+# TRINITY_DN7527_c1_g1_i5   715.1051       0.761016  0.147901   5.14546 2.66871e-07 0.00302547
+# TRINITY_DN2979_c1_g1_i4    80.2658       1.331316  0.258703   5.14613 2.65922e-07 0.00302547
+# TRINITY_DN2556_c0_g1_i11   59.0485       1.544075  0.313241   4.92934 8.25066e-07 0.00779467
+
+summary(nf_resAM_OW)
+# out of 56701 with nonzero total read count
+# adjusted p-value < 0.05
+# LFC > 0 (up)       : 23, 0.041%
+# LFC < 0 (down)     : 4, 0.0071%
+# outliers [1]       : 17, 0.03%
+# low counts [2]     : 0, 0%
+# (mean count < 16)
+
+
+################### Acdification vs. Ambient ##########
+nf_resAM_OA <- results(nf_dds, name="treatment_OA_vs_AM", alpha=0.05)
+
+nf_resAM_OA <- nf_resAM_OA[order(nf_resAM_OA$padj),] #adjusting the p-value to correct for multiple testing
+head(nf_resAM_OA)  
+#                           baseMean log2FoldChange     lfcSE      stat      pvalue       padj
+#                          <numeric>      <numeric> <numeric> <numeric>   <numeric>  <numeric>
+# TRINITY_DN3718_c0_g1_i13  3394.641       0.767062 0.1538737   4.98501 6.19591e-07 0.00311530
+# TRINITY_DN1845_c0_g1_i1    576.118       3.106094 0.6608981   4.69981 2.60406e-06 0.00314193
+# TRINITY_DN4735_c0_g1_i3   1113.067       0.868625 0.1853409   4.68664 2.77733e-06 0.00314193
+# TRINITY_DN854_c0_g1_i7    4500.828       0.410264 0.0879929   4.66247 3.12443e-06 0.00314193
+# TRINITY_DN2119_c0_g1_i3   8986.904       0.677684 0.1418169   4.77858 1.76537e-06 0.00314193
+# TRINITY_DN2868_c0_g1_i3    758.159       0.449803 0.0992407   4.53245 5.83045e-06 0.00421966
+
+summary(nf_resAM_OA)
+# out of 56701 with nonzero total read count
+# adjusted p-value < 0.05
+# LFC > 0 (up)       : 61, 0.11%
+# LFC < 0 (down)     : 3, 0.0053%
+# outliers [1]       : 17, 0.03%
+# low counts [2]     : 51656, 91%
+# (mean count < 545)
+```
+
+Plot Individual genes, less helpful for comparing assemblies, since the top genes are different 
+```{r}
+# Counts of specific top interaction gene! (important validation that the normalization, model is working) 
+# OWA vs. AM top gene TTRINITY_DN290_c0_g1_i49
+d <-plotCounts(nf_dds, gene="TRINITY_DN290_c0_g1_i49", intgroup = (c("treatment","generation")), returnData=TRUE)
+d
+
+p <-ggplot(d, aes(x=treatment, y=count, color=treatment, shape=generation)) + 
+  theme_minimal() + theme(text = element_text(size=20), panel.grid.major=element_line(colour="grey"))
+p <- p + geom_point(position=position_jitter(w=0.2,h=0), size=3)
+p <- p + stat_summary(fun = mean, geom = "line")
+p <- p + stat_summary(fun = mean, geom = "point", size=5, alpha=0.7) 
+p
+```
+
+
+
+MODEL NUMBER 2 - subset to focus on effect of treatment for each generation
+```{r}
+
+nf_dds <- DESeqDataSetFromMatrix(countData = nf_countsTableRound, colData=conds, 
+                              design= ~ treatment)
+
+dim(nf_dds)
+# [1] 349516     38
+
+# Filter 
+nf_dds <- nf_dds[rowSums(counts(nf_dds) >= 15) >= 28,] # 56701
+nrow(nf_dds) 
+
+# Subset the DESeqDataSet to the specific level of the "generation" factor
+nf_dds_subF0 <- subset(nf_dds, select = generation == 'F0')
+dim(nf_dds_subF0) # [1] 56701    12
+
+# Perform DESeq2 analysis on the subset
+nf_dds_subF0 <- DESeq(nf_dds_subF0)
+
+resultsNames(nf_dds_subF0)
+# [1] "Intercept"   "treatment_OA_vs_AM"  "treatment_OW_vs_AM"  "treatment_OWA_vs_AM"
+
+
+
+############### Warming vs. Acidification F0 #########
+
+nf_res_F0_OWvAM <- results(nf_dds_subF0, name="treatment_OW_vs_AM", alpha=0.05)
+
+nf_res_F0_OWvAM <- nf_res_F0_OWvAM[order(nf_res_F0_OWvAM$padj),]
+head(nf_res_F0_OWvAM)
+#                          baseMean log2FoldChange     lfcSE      stat      pvalue        padj
+#                         <numeric>      <numeric> <numeric> <numeric>   <numeric>   <numeric>
+# TRINITY_DN3821_c0_g1_i2   1519.28        3.63319  0.331317  10.96591 5.57397e-28 3.03302e-23
+# TRINITY_DN30_c0_g2_i1    33775.08        3.71641  0.348503  10.66395 1.50090e-26 2.72233e-22
+# TRINITY_DN33_c0_g1_i18    5282.41        3.52309  0.329422  10.69477 1.07686e-26 2.72233e-22
+# TRINITY_DN9365_c0_g1_i1   3665.76        3.54942  0.342493  10.36348 3.63494e-25 4.94479e-21
+# TRINITY_DN258_c0_g1_i13   5465.93        3.25683  0.325442  10.00738 1.41442e-23 1.53929e-19
+# TRINITY_DN585_c0_g1_i8    2132.41        2.86470  0.287747   9.95562 2.38330e-23 1.99049e-19
+
+summary(nf_res_F0_OWvAM)
+# out of 56701 with nonzero total read count
+# adjusted p-value < 0.05
+# LFC > 0 (up)       : 2049, 3.6%
+# LFC < 0 (down)     : 815, 1.4%
+# outliers [1]       : 90, 0.16%
+# low counts [2]     : 2197, 3.9%
+# (mean count < 22)
+
+
+### Plot Individual genes ### 
+
+# Counts of specific top interaction gene! (important validation that the normalization, model is working)
+# OW vs. AM top gene TRINITY_DN30_c0_g2::TRINITY_DN30_c0_g2_i1::g.130::m.130
+d <-plotCounts(nf_dds_subF0, gene="TRINITY_DN3821_c0_g1_i2", intgroup = (c("treatment","generation")), returnData=TRUE)
+d
+
+p <-ggplot(d, aes(x=treatment, y=count, color=treatment, shape=generation)) + 
+  theme_minimal() + theme(text = element_text(size=20), panel.grid.major=element_line(colour="grey"))
+p <- p + geom_point(position=position_jitter(w=0.2,h=0), size=3)
+p <- p + stat_summary(fun = mean, geom = "point", size=5, alpha=0.7) 
+p
+
+
+### We can make an MA plot (sideways volcano) ### This doesn't look very different from the 95% assembly mapping results
+plotMA(nf_res_F0_OWvAM, ylim=c(-7,7))
+```
+
+Heatmap of top 20 genes sorted by pvalue
+```{r}
+library(pheatmap)
+
+# By environment
+nf_vsdF0 <- vst(nf_dds_subF0, blind=FALSE)
+
+nf_topgenes <- head(rownames(nf_res_F0_OWvAM),20)
+nfmat <- assay(nf_vsdF0)[nf_topgenes,]
+nfmat <- nfmat - rowMeans(nfmat) #scaling matrix so it's normalized for comparison (subtracting means)
+nf_df <- as.data.frame(colData(nf_dds_subF0)[,c("generation","treatment")])
+pheatmap(nfmat, annotation_col=nf_df)
+pheatmap(nfmat, annotation_col=nf_df, cluster_cols = F, main = "Total assembly")
+```
+
+PLOT OVERLAPPING DEGS IN VENN EULER DIAGRAM
+```{r}
+
+# Since we have three contrasts, let’s make a Venn (or Euler) Diagram to see how similar or different the DGE is from Ambient for OA, OW, and OWA at F0!
+
+# making lists of differentially expressed genes For OW vs AM
+nf_res_F0_OWvAM <- results(nf_dds_subF0, name="treatment_OW_vs_AM", alpha=0.05) # currently only using data for F0 generation (dds_sub), could also filter based on test "stat" or log2 fold change to split between up and down regulated gene sets
+nf_res_F0_OWvAM <- nf_res_F0_OWvAM[order(nf_res_F0_OWvAM$padj),]
+head(nf_res_F0_OWvAM)
+summary(nf_res_F0_OWvAM)
+# out of 54414 with nonzero total read count
+# adjusted p-value < 0.05
+# LFC > 0 (up)       : 2049, 3.8%
+# LFC < 0 (down)     : 815, 1.5%
+# outliers [1]       : 0, 0%
+# low counts [2]     : 0, 0%
+# (mean count < 22)
+nf_res_F0_OWvAM <- nf_res_F0_OWvAM[!is.na(nf_res_F0_OWvAM$padj),] # removes samples with no call
+nf_degs_F0_OWvAM <- row.names(nf_res_F0_OWvAM[nf_res_F0_OWvAM$padj < 0.05,])
+
+### For OA vs AM ###
+nf_res_F0_OAvAM <- results(nf_dds_subF0, name="treatment_OA_vs_AM", alpha=0.05)
+nf_res_F0_OAvAM <- nf_res_F0_OAvAM[order(nf_res_F0_OAvAM$padj),]
+head(nf_res_F0_OAvAM)
+summary(nf_res_F0_OAvAM)
+# out of 55511 with nonzero total read count
+# adjusted p-value < 0.05
+# LFC > 0 (up)       : 321, 0.58%
+# LFC < 0 (down)     : 176, 0.32%
+# outliers [1]       : 0, 0%
+# low counts [2]     : 0, 0%
+# (mean count < 20)
+nf_res_F0_OAvAM <- nf_res_F0_OAvAM[!is.na(nf_res_F0_OAvAM$padj),]
+nf_degs_F0_OAvAM <- row.names(nf_res_F0_OAvAM[nf_res_F0_OAvAM$padj < 0.05,])
+
+### For OWA vs AM ###
+nf_res_F0_OWAvAM <- results(nf_dds_subF0, name="treatment_OWA_vs_AM", alpha=0.05)
+nf_res_F0_OWAvAM <- nf_res_F0_OWAvAM[order(nf_res_F0_OWAvAM$padj),]
+head(nf_res_F0_OWAvAM)
+summary(nf_res_F0_OWAvAM)
+# out of 52215 with nonzero total read count
+# adjusted p-value < 0.05
+# LFC > 0 (up)       : 1390, 2.7%
+# LFC < 0 (down)     : 639, 1.2%
+# outliers [1]       : 0, 0%
+# low counts [2]     : 0, 0%
+# (mean count < 26)
+nf_res_F0_OWAvAM <- nf_res_F0_OWAvAM[!is.na(nf_res_F0_OWAvAM$padj),]
+nf_degs_F0_OWAvAM <- row.names(nf_res_F0_OWAvAM[nf_res_F0_OWAvAM$padj < 0.05,])
+
+library(eulerr)
+
+# Total number of genes
+length(nf_degs_F0_OAvAM)  # 497
+length(nf_degs_F0_OWvAM)  # 2864 
+length(nf_degs_F0_OWAvAM)  # 2029
+
+# Intersections
+length(intersect(nf_degs_F0_OAvAM,nf_degs_F0_OWvAM))  # 290
+length(intersect(nf_degs_F0_OAvAM,nf_degs_F0_OWAvAM))  # 243
+length(intersect(nf_degs_F0_OWAvAM,nf_degs_F0_OWvAM))  # 1136
+
+nf_intWA <- intersect(nf_degs_F0_OAvAM,nf_degs_F0_OWvAM)
+length(intersect(nf_degs_F0_OWAvAM,nf_intWA)) # 216 overlap between all 3 conditions
+
+# Number unique
+497-290-243+216 # 180 OA
+2864-290-1136+216 # 1654 OW 
+2029-243-1136+216 # 866 OWA
+
+290-216 # 74 OA & OW
+243-216 # 27 OA & OWA
+1136-216 # 920 OWA & OW
+
+
+# Note that the names are important and have to be specific to line up the diagram
+nf_fit1 <- euler(c("OA" = 180, "OW" = 1654, "OWA" = 866, "OA&OW" = 74, "OA&OWA" = 27, "OW&OWA" = 920, "OA&OW&OWA" = 216))
+
+
+plot(nf_fit1, lty = 1:3, quantities = TRUE, main = "F0 Total assembly")
+# lty changes the lines
+
+# different diagram aesthetic
+plot(nf_fit1, quantities = TRUE, fill = "transparent",
+     lty = 1:3,
+     labels = list(font = 4))
+
+
+#cross check
+1654+920+216+74 # 2864, total OW
+866+920+216+27 # 2029, total OWA
+180+27+216+74  # 497, total OA
+```
+

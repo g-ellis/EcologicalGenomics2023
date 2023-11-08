@@ -43,8 +43,8 @@ Explore the counts data a bit
 colSums(countsTableRound)
 mean(colSums(countsTableRound)) # 14,687,388
 
-barplot(colSums(countsTableRound), names.arg=colnames(countsTableRound),cex.names=0.5, las=3,ylim=c(0,21000000))
-abline(h=mean(colSums(countsTableRound)), col="blue", lwd=2)
+barplot(colSums(countsTableRound), names.arg=colnames(countsTableRound),cex.names=0.5, las=3,ylim=c(0,25000000), main = "95% filtered assembly", ylab = "reads per sample")
+abline(h=mean(colSums(countsTableRound)), col="salmon", lwd=2)
 
 # the average number of counts per gene
 rowSums(countsTableRound)
@@ -64,12 +64,12 @@ Create a DESeq object and define the experimental design
 dds <- DESeqDataSetFromMatrix(countData = countsTableRound, colData=conds, 
                               design= ~ generation + treatment)
 
-dim(dds)
+dim(dds) # [1] 67916    38
 
 # Filter out genes with too few reads - remove all genes with counts < 15 in more than 75% of samples, so ~28 (n=38)
 ## suggested by WGCNA on RNAseq FAQ
 dds <- dds[rowSums(counts(dds) >= 15) >= 28,]
-nrow(dds) # [1] 41348 (30 reads) [2] 25260 (new assembly, 15 reads)
+nrow(dds) # [1] 41,348 (30 reads) [2] 25,260 (new assembly, 15 reads)
 
 # Run the DESeq model to test for differential gene expression
 dds <- DESeq(dds)
@@ -115,10 +115,12 @@ vsd <- vst(dds, blind=FALSE)
 pcaData <- plotPCA(vsd, intgroup=c("treatment","generation"), returnData=TRUE)
 percentVar <- round(100 * attr(pcaData,"percentVar"))
 
-ggplot(pcaData, aes(PC1, PC2, color=treatment, shape=generation)) +.  #more clustering by generation than by treatment
+ggplot(pcaData, aes(PC1, PC2, color=treatment, shape=generation)) +  #more clustering by generation than by treatment
   geom_point(size=3) +
   xlab(paste0("PC1: ",percentVar[1],"% variance")) +
   ylab(paste0("PC2: ",percentVar[2],"% variance")) + 
+  ggtitle("Filtered assembly") +
+  ylim(-40, 40) + xlim(-40, 70)
   coord_fixed() 
 ```
 
@@ -276,7 +278,7 @@ head(resAM_OWA)
 summary(resAM_OWA)
 #out of 25260 with nonzero total read count
 #adjusted p-value < 0.05
-#LFC > 0 (up)       : 99, 0.39% few transcripts up or down regualted between OWA and AM
+#LFC > 0 (up)       : 99, 0.39% few transcripts up or down regulated between OWA and AM
 #LFC < 0 (down)     : 75, 0.3%
 #outliers [1]       : 4, 0.016%
 #low counts [2]     : 0, 0%
@@ -424,8 +426,10 @@ mat <- assay(vsd)[topgenes,]
 mat <- mat - rowMeans(mat) #scaling matrix so it's normalized for comparison (subtracting means)
 df <- as.data.frame(colData(dds_sub)[,c("generation","treatment")])
 pheatmap(mat, annotation_col=df)
-pheatmap(mat, annotation_col=df, cluster_cols = F)
+pheatmap(mat, annotation_col=df, cluster_cols = F, main = "Filtered assembly")
 ```
+
+
 PLOT OVERLAPPING DEGS IN VENN EULER DIAGRAM
 ```{r}
 
@@ -435,8 +439,14 @@ PLOT OVERLAPPING DEGS IN VENN EULER DIAGRAM
 res_F0_OWvAM <- results(dds_sub, name="treatment_OW_vs_AM", alpha=0.05) # currently only using data for F0 generation (dds_sub), could also filter based on test "stat" or log2 fold change to split between up and down regulated gene sets
 res_F0_OWvAM <- res_F0_OWvAM[order(res_F0_OWvAM$padj),]
 head(res_F0_OWvAM)
-
 summary(res_F0_OWvAM)
+# out of 24748 with nonzero total read count
+# adjusted p-value < 0.05
+# LFC > 0 (up)       : 3468, 14%
+# LFC < 0 (down)     : 2049, 8.3%
+# outliers [1]       : 0, 0%
+# low counts [2]     : 0, 0%
+# (mean count < 20)
 res_F0_OWvAM <- res_F0_OWvAM[!is.na(res_F0_OWvAM$padj),] # removes samples with no call
 degs_F0_OWvAM <- row.names(res_F0_OWvAM[res_F0_OWvAM$padj < 0.05,])
 
@@ -444,8 +454,14 @@ degs_F0_OWvAM <- row.names(res_F0_OWvAM[res_F0_OWvAM$padj < 0.05,])
 res_F0_OAvAM <- results(dds_sub, name="treatment_OA_vs_AM", alpha=0.05)
 res_F0_OAvAM <- res_F0_OAvAM[order(res_F0_OAvAM$padj),]
 head(res_F0_OAvAM)
-
 summary(res_F0_OAvAM)
+# out of 21810 with nonzero total read count
+# adjusted p-value < 0.05
+# LFC > 0 (up)       : 426, 2%
+# LFC < 0 (down)     : 176, 0.81%
+# outliers [1]       : 0, 0%
+# low counts [2]     : 0, 0%
+# (mean count < 36)
 res_F0_OAvAM <- res_F0_OAvAM[!is.na(res_F0_OAvAM$padj),]
 degs_F0_OAvAM <- row.names(res_F0_OAvAM[res_F0_OAvAM$padj < 0.05,])
 
@@ -453,8 +469,14 @@ degs_F0_OAvAM <- row.names(res_F0_OAvAM[res_F0_OAvAM$padj < 0.05,])
 res_F0_OWAvAM <- results(dds_sub, name="treatment_OWA_vs_AM", alpha=0.05)
 res_F0_OWAvAM <- res_F0_OWAvAM[order(res_F0_OWAvAM$padj),]
 head(res_F0_OWAvAM)
-
 summary(res_F0_OWAvAM)
+# out of 24259 with nonzero total read count
+# adjusted p-value < 0.05
+# LFC > 0 (up)       : 2343, 9.7%
+# LFC < 0 (down)     : 1575, 6.5%
+# outliers [1]       : 0, 0%
+# low counts [2]     : 0, 0%
+# (mean count < 23)
 res_F0_OWAvAM <- res_F0_OWAvAM[!is.na(res_F0_OWAvAM$padj),]
 degs_F0_OWAvAM <- row.names(res_F0_OWAvAM[res_F0_OWAvAM$padj < 0.05,])
 
@@ -487,7 +509,7 @@ length(intersect(degs_F0_OWAvAM,intWA)) # 338 overlap between all 3 conditions
 fit1 <- euler(c("OA" = 116, "OW" = 2668, "OWA" = 1133, "OA&OW" = 106, "OA&OWA" = 42, "OW&OWA" = 2405, "OA&OW&OWA" = 338))
 
 
-plot(fit1,  lty = 1:3, quantities = TRUE)
+plot(fit1, lty = 1:3, quantities = TRUE, main = "F0 Filtered assembly")
 # lty changes the lines
 
 # different diagram aesthetic
