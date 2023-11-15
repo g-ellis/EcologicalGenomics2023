@@ -1,0 +1,15 @@
+
+
+
+
+
+Analysis Type:	PANTHER Overrepresentation Test (Released 20231017)
+Annotation Version and Release Date:	GO Ontology database DOI:  10.5281/zenodo.7942786 Released 2023-01-05
+Analyzed List:	upload_1 (Strongylocentrotus purpuratus)
+Reference List:	Strongylocentrotus purpuratus (all genes in database)
+Test Type:	FISHER
+Correction:	FDR
+GO cellular component complete	Strongylocentrotus purpuratus - REFLIST (26459)	upload_1 (136)	upload_1 (expected)	upload_1 (over/under)	upload_1 (fold Enrichment)	upload_1 (raw P-value)	upload_1 (FDR)
+nucleosome (GO:0000786)	81	6	.42	+	14.41	5.75E-06	6.46E-03
+chromatin (GO:0000785)	229	8	1.18	+	6.80	3.12E-05	1.75E-02
+protein-DNA complex (GO:0032993)	263	8	1.35	+	5.92	8.02E-05	3.00E-02

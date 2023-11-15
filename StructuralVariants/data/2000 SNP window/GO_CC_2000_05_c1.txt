@@ -1,0 +1,12 @@
+
+
+
+
+
+Analysis Type:	PANTHER Overrepresentation Test (Released 20231017)
+Annotation Version and Release Date:	GO Ontology database DOI:  10.5281/zenodo.7942786 Released 2023-01-05
+Analyzed List:	upload_1 (Strongylocentrotus purpuratus)
+Reference List:	Strongylocentrotus purpuratus (all genes in database)
+Test Type:	FISHER
+Correction:	FDR
+GO cellular component complete	Strongylocentrotus purpuratus - REFLIST (26459)	upload_1 (86)	upload_1 (expected)	upload_1 (over/under)	upload_1 (fold Enrichment)	upload_1 (raw P-value)	upload_1 (FDR)

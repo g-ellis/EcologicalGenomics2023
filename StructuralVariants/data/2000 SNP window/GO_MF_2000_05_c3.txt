@@ -1,0 +1,19 @@
+
+
+
+
+
+Analysis Type:	PANTHER Overrepresentation Test (Released 20231017)
+Annotation Version and Release Date:	GO Ontology database DOI:  10.5281/zenodo.7942786 Released 2023-01-05
+Analyzed List:	upload_1 (Strongylocentrotus purpuratus)
+Reference List:	Strongylocentrotus purpuratus (all genes in database)
+Test Type:	FISHER
+Correction:	FDR
+GO molecular function complete	Strongylocentrotus purpuratus - REFLIST (26459)	upload_1 (118)	upload_1 (expected)	upload_1 (over/under)	upload_1 (fold Enrichment)	upload_1 (raw P-value)	upload_1 (FDR)
+alpha-sialidase activity (GO:0016997)	11	3	.05	+	61.15	3.00E-05	1.67E-02
+exo-alpha-sialidase activity (GO:0004308)	11	3	.05	+	61.15	3.00E-05	1.39E-02
+structural constituent of chromatin (GO:0030527)	78	10	.35	+	28.75	6.81E-12	1.90E-08
+protein heterodimerization activity (GO:0046982)	99	8	.44	+	18.12	2.68E-08	3.74E-05
+guanyl-nucleotide exchange factor activity (GO:0005085)	101	5	.45	+	11.10	1.12E-04	4.47E-02
+protein dimerization activity (GO:0046983)	229	8	1.02	+	7.83	1.12E-05	7.80E-03
+structural molecule activity (GO:0005198)	343	10	1.53	+	6.54	4.12E-06	3.83E-03

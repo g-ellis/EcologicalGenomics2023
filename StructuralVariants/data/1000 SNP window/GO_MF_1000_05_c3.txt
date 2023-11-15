@@ -1,0 +1,18 @@
+
+
+
+
+
+Analysis Type:	PANTHER Overrepresentation Test (Released 20231017)
+Annotation Version and Release Date:	GO Ontology database DOI:  10.5281/zenodo.7942786 Released 2023-01-05
+Analyzed List:	upload_1 (Strongylocentrotus purpuratus)
+Reference List:	Strongylocentrotus purpuratus (all genes in database)
+Test Type:	FISHER
+Correction:	FDR
+GO molecular function complete	Strongylocentrotus purpuratus - REFLIST (26459)	upload_1 (142)	upload_1 (expected)	upload_1 (over/under)	upload_1 (fold Enrichment)	upload_1 (raw P-value)	upload_1 (FDR)
+structural constituent of chromatin (GO:0030527)	78	9	.42	+	21.50	9.82E-10	2.74E-06
+protein heterodimerization activity (GO:0046982)	99	8	.53	+	15.06	1.13E-07	1.57E-04
+protein dimerization activity (GO:0046983)	229	9	1.23	+	7.32	5.62E-06	5.22E-03
+nucleoside-triphosphatase regulator activity (GO:0060589)	207	8	1.11	+	7.20	2.12E-05	1.18E-02
+GTPase regulator activity (GO:0030695)	207	8	1.11	+	7.20	2.12E-05	9.86E-03
+structural molecule activity (GO:0005198)	343	10	1.84	+	5.43	2.10E-05	1.47E-02

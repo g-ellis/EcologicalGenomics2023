@@ -1,0 +1,17 @@
+
+
+
+
+
+Analysis Type:	PANTHER Overrepresentation Test (Released 20231017)
+Annotation Version and Release Date:	GO Ontology database DOI:  10.5281/zenodo.7942786 Released 2023-01-05
+Analyzed List:	upload_1 (Strongylocentrotus purpuratus)
+Reference List:	Strongylocentrotus purpuratus (all genes in database)
+Test Type:	FISHER
+Correction:	FDR
+GO cellular component complete	Strongylocentrotus purpuratus - REFLIST (26459)	upload_1 (143)	upload_1 (expected)	upload_1 (over/under)	upload_1 (fold Enrichment)	upload_1 (raw P-value)	upload_1 (FDR)
+methyltransferase complex (GO:0034708)	46	4	.25	+	16.09	1.52E-04	3.41E-02
+catalytic complex (GO:1902494)	1004	16	5.43	+	2.95	1.24E-04	3.49E-02
+protein-containing complex (GO:0032991)	2809	37	15.18	+	2.44	3.39E-07	3.81E-04
+cellular_component (GO:0005575)	16450	111	88.91	+	1.25	1.24E-04	4.63E-02
+Unclassified (UNCLASSIFIED)	10009	32	54.09	-	.59	1.24E-04	6.95E-02
