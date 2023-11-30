@@ -4,6 +4,7 @@
 ###################################
 
 library(RcppCNPy) # for reading python numpy (.npy) files
+library(tidyverse)
 
 
 ### read in selection statistics (these are chi^2 distributed)
@@ -21,7 +22,6 @@ dim(p) #680688      8
 p_filtered = p[which(p$kept_sites==1),]
 dim(p_filtered) # [1] 507966      8
 
-# How many sites got filtered out when testing for selection? Why?
 
 ## make manhattan plot
 plot(-log10(pval$p_PC1),
@@ -44,16 +44,32 @@ sel_contig <- p_filtered[which(pval$p_PC1==min(pval$p_PC1)),c("chromo","position
 sel_contig
 
 # get all the outliers with p-values below some cutoff
-cutoff=1e-4   # equals a 1 in 5,000 probability
+cutoff=.0005   
 outlier_contigs_PC1 <- p_filtered[which(pval$p_PC1<cutoff),c("chromo","position")]
 outlier_contigs_PC2 <- p_filtered[which(pval$p_PC2<cutoff),c("chromo","position")]
 
 
 # how many outlier loci < the cutoff?
-dim(outlier_contigs)[1]
+dim(outlier_contigs_PC1)[1] #28
+dim(outlier_contigs_PC2)[1] #1890
 
 # how many unique contigs harbor outlier loci?
-length(unique(outlier_contigs_PC2$chromo)) #506
+length(unique(outlier_contigs_PC2$chromo)) #1146
+length(unique(outlier_contigs_PC1$chromo)) #24
 
+# make tables of the outlier contigs for gene matching and GO enrichment
+write.table(unique(outlier_contigs_PC1$chromo),
+            "RSBS_poly_PC1_outlier_contigs.txt", 
+            sep="\t",
+            quote=F,
+            row.names=F,
+            col.names=F)
+
+write.table(unique(outlier_contigs_PC2$chromo),
+            "RSBS_poly_PC2_outlier_contigs.txt", 
+            sep="\t",
+            quote=F,
+            row.names=F,
+            col.names=F)
 
 
