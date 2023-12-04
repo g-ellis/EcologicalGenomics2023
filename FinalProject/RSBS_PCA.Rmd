@@ -199,25 +199,32 @@ pop_coords <- read_csv("RSBS_coordinates.csv") # csv with just latitude + longit
 pop_coords <- pop_coords[,2:3] # removing population ID column
 pop_coords <- as.matrix(pop_coords) # converting to a matrix
 
+# setting up shapefiles for the map
+n_america <- read_sf("shape_files/bound_p.shp") # this is a shp for all of north america with more generalized boundaries
 
-us_states<-read_sf("shape_files/USA_States_Generalized.shp")
-new_england <- us_states[us_states$SUB_REGION == "New England",]
-south_atl <- us_states[us_states$SUB_REGION =="South Atlantic",]
-mid_atl <- us_states[us_states$SUB_REGION =="Middle Atlantic",]
-wn_central <- us_states[us_states$SUB_REGION == "West North Central",]
-en_central <- us_states[us_states$SUB_REGION == "East North Central",]
-es_central <- us_states[us_states$SUB_REGION == "East South Central",]
-east_coast <- bind_rows(new_england, south_atl, wn_central, mid_atl, en_central, es_central)
+canada <- n_america[n_america$COUNTRY == "CAN",c(-1,-2,-3)]
+quebec <- canada[canada$NAME == "Quebec / Québec",]
+nova_scotia <- canada[canada$NAME == "Nova Scotia / Nouvelle-Écosse",]
+new_brunswick <- canada[canada$NAME == "New Brunswick / Nouveau-Brunswick",]
+ontario <- canada[canada$NAME == "Ontario",]
+canada_east <- bind_rows(quebec, nova_scotia, new_brunswick, ontario)
 
+us <- n_america[n_america$COUNTRY == "USA",c(-1,-2,-3)]
+east_states <- c("Connecticut","Maine","Massachusetts","New Hampshire","Rhode Island","Vermont","Delaware","District of Columbia","Florida","Georgia","Maryland","North Carolina","South Carolina","Virginia","West Virginia","Iowa","Missouri","Minnesota","New Jersey","New York","Pennsylvania","Illinois","Indiana","Michigan","Ohio","Wisconsin","Alabama","Kentucky","Mississippi","Tennessee")
+us_east <- us[us$NAME %in% east_states,]
 
-plot(east_coast[c(-17,-20,-21,-22),4], reset=FALSE, col="white")
+total_east_coast <- bind_rows(canada_east,us_east)
+
+#plotting the map with the admixture proportions over it
+plot(total_east_coast[,6], reset=FALSE, col="white", main="Population Admixture Proportions")
+legend("topleft", c("Refugia", "Northern", "Black Spruce"), col = c("lightseagreen", "mediumpurple1", "sandybrown"), pch=20)
 make.admix.pie.plot(admix.proportions = pop_admix_avg,
                     coords = pop_coords,
-                    layer.colors = c("blue", "green", "yellow"),
+                    layer.colors = c("mediumpurple1", "lightseagreen", "sandybrown"),
+                    radii = 1.5,
                     add = TRUE,
                     x.lim = NULL,
                     y.lim = NULL)
-
 
 
 ```
