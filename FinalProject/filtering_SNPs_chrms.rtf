@@ -1,0 +1,131 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2709
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 Menlo-Regular;\f2\fnil\fcharset0 Menlo-Bold;
+\f3\fnil\fcharset0 Monaco;}
+{\colortbl;\red255\green255\blue255;\red46\green174\blue187;\red0\green0\blue0;\red200\green20\blue201;
+\red159\green160\blue28;\red47\green180\blue29;\red64\green11\blue217;\red0\green0\blue0;\red0\green0\blue0;
+\red214\green0\blue72;\red18\green145\blue206;\red102\green177\blue50;\red69\green97\blue111;}
+{\*\expandedcolortbl;;\cssrgb\c20199\c73241\c78251;\csgray\c0;\cssrgb\c83397\c23074\c82666;
+\cssrgb\c68469\c68012\c14211;\cssrgb\c20241\c73898\c14950;\cssrgb\c32309\c18666\c88229;\cssrgb\c0\c0\c0;\csgray\c0\c0;
+\cssrgb\c87843\c11765\c35294;\cssrgb\c0\c63852\c84489;\cssrgb\c46532\c73327\c25364;\cssrgb\c33725\c45490\c50980;}
+\margl1440\margr1440\vieww14300\viewh18400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 ## bash script for filtering variant calls##\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1\fs22 \cf2 \CocoaLigature0 #!/bin/bash\cf3 \
+\
+\
+\cf2 # use bcftools to filter your chromosome. The output of this line will be a vcf file that we can look at\cf3 \
+\
+bcftools view
+\f2\b \cf4  -e
+\f1\b0 \cf3  
+\f2\b \cf5 'AN < 100'
+\f1\b0 \cf3  ~/SpruceProj/RS_mapped/RSBS_RSmapped_calls.bcf \cf6 >\cf3  ~/SpruceProj/RS_mapped/RSBS_RSmapped_calls_filtered.vcf\
+\
+
+\f2\b \cf7 echo
+\f1\b0 \cf3  
+\f2\b \cf5 "Filtered bcf"
+\f1\b0 \cf2  # Some printing to keep track of progress\cf3 \
+\
+\cf2 # Convert the filtered vcf into the bcf file type which is the type the R package will be expecting\cf3 \
+\
+bcftools view -Ob ~/SpruceProj/RS_mapped/RSBS_RSmapped_calls_filtered.vcf \cf6 >\cf3  ~/SpruceProj/RS_mapped/RSBS_RSmapped_calls_filtered.bcf\
+\
+
+\f2\b \cf7 echo
+\f1\b0 \cf3  
+\f2\b \cf5 "Converted to bcf"
+\f1\b0 \cf2  # Some printing to keep track of progress\cf3 \
+\
+\cf2 # Index the filtered bcf file. This will make the file more searchable by the algorythm reading it.\cf3 \
+\
+bcftools index ~/SpruceProj/RS_mapped/RSBS_RSmapped_calls_filtered.bcf\
+
+\f2\b \cf7 echo
+\f1\b0 \cf3  
+\f2\b \cf5 "Indexed bcf"
+\f1\b0 \cf3 \
+
+\f2\b \cf7 echo
+\f1\b0 \cf3  
+\f2\b \cf5 "Done!"
+\f1\b0 \cf3 \
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \CocoaLigature1 \
+\
+\
+\
+\
+## Keeping chromosomes with >= 5000 SNPs for localPCA ##\
+\
+\pard\pardeftab720\partightenfactor0
+
+\f3\fs22 \cf8 \cb9 \expnd0\expndtw0\kerning0
+awk -F\'94\\t\'94 \'91\{print $1\}' \kerning1\expnd0\expndtw0 \CocoaLigature0 RSBS_RSmapped_calls.vcf\expnd0\expndtw0\kerning0
+\CocoaLigature1  > ch_names \cf11 #sectioning out chromosomes names\cf8 \
+\
+grep -v \\# ch_names > ch_names2 \cf11 #removing header lines\cf8  \
+\
+cat ch_names2 | sort | uniq -c > uni_ch_names \cf11 #list of the unique chromosome names\cf8 \
+\
+sort -k1 -n uni_ch_names > sorted_uni_ch \cf11 #sorting chromosomes based on how many SNPs they have\cf8 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf8 \kerning1\expnd0\expndtw0 \CocoaLigature0 awk '$1 >= 5000' \cf8 \cb9 \expnd0\expndtw0\kerning0
+\CocoaLigature1 sorted_uni_ch\cf8 \cb9 \kerning1\expnd0\expndtw0 \CocoaLigature0  > large_uni_ch \cf11 #keeping only the chromosomes with \CocoaLigature1 >= 5000 SNPs\cf8 \expnd0\expndtw0\kerning0
+\
+\
+\kerning1\expnd0\expndtw0 \CocoaLigature0 awk -F" " '\{print $2\}' large_uni_ch > keep_uni_ch \cf11 #keeping just the names of the large chromosomes\cf8 \
+\
+
+\f1 \cf3 \cb1 sed 's/$/\\t/' keep_uni_ch > keep_uni_ch_tab \cf11 #adding tabs after chromosome names
+\f3 \cf8 \cb9 \
+\
+grep -f keep_uni_ch_tab RSBS_BSmapped_calls.vcf > large_calls.vcf \cf11 #keeping only the lines that match the large chromosome names, this also removes the header now\cf8 \
+\
+\cf12 ###grep -v \\# large_RSBS_BSmapped_calls.vcf > large_RSBS_BSmapped_calls2.vcf #removing the header because its all weird from the previous step ### tab addition now already removes header\cf8 \
+\
+grep \\# RSBS_BSmapped_calls.vcf > header.txt \cf11 #sectioning out the header from the original vcf file\cf8 \
+\
+awk '$1 < 5000' \cf8 \cb9 \expnd0\expndtw0\kerning0
+\CocoaLigature1 sorted_uni_ch\cf8 \cb9 \kerning1\expnd0\expndtw0 \CocoaLigature0  > small_uni_ch \cf11 #list of small chromosomes\cf8 \
+\
+awk -F" " '\{print $2\}' small_uni_ch > trash_ch.list \cf11 #list of the small chromosomes names only\
+\
+
+\f1 \cf3 \cb1 sed \'92s/$/,/\'91 trash_ch.list > trash_ch.list_comma \cf11 #adding a comma to mark end of contig name(this still ignores contigs with 0 SNPs)
+\f3 \cf8 \cb9 \
+\
+grep -v -f 
+\f1 \cf3 \cb1 trash_ch.list_comma
+\f3 \cf8 \cb9  header.txt > final_header.txt \cf11 #remove small chromosomes names from header\cf8 \
+\
+cat final_header.txt 
+\f1 \cf3 \cb1 large_calls_no444.vcf
+\f3 \cf8 \cb9  > final_large_RSBS_BS_mapped_calls.vcf \cf11 #add the header back to the filtered vcf\cf8 \
+\
+mkdir final \cf11 #make a new directory to store subsetted vcf\cf8 \
+\
+mv final_large_RSBS_BS_mapped_calls.vcf final/ \cf11 #move the file to the right place\cf8 \
+\
+bcftools view -Ob final_large_RSBS_BS_mapped_calls.vcf > final_large_RSBS_BS_mapped_calls.bcf \cf11 #convert to bcf\cf8 \
+\
+bcftools index final_large_RSBS_BS_mapped_calls.bcf \cf11 #index bcf\cf8 \
+\cb8 \
+\pard\pardeftab720\partightenfactor0
+\cf8 \cb9 \expnd0\expndtw0\kerning0
+\CocoaLigature1 Rscript ~/myscripts/run_lostruct.R -i ~/
+\f1 \cf3 \cb1 \kerning1\expnd0\expndtw0 \CocoaLigature0 SpruceProj/BS_mapped/BS_no444/filtered/final
+\f3 \cf8 \cb9 \expnd0\expndtw0\kerning0
+\CocoaLigature1  -t snp -s 1000 -I ~/
+\f1 \cf3 \cb1 \kerning1\expnd0\expndtw0 \CocoaLigature0 SpruceProj/BS_mapped/RSBS_BSmapped_bam_pop.txt
+\f3 \cf8 \cb9  \cf11 #run the localPCA script
+\f1 \cf3 \cb1 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\
+}

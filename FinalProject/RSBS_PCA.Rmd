@@ -21,80 +21,138 @@ library(tmap) #Thematic mapping package
 ```
 
 
-Genetic PCA
+Genetic PCA (Norway spruce mapped)
 ```{r}
 
-COV <- as.matrix(read.table("RSBS_poly.cov")) # read in the genetic covariance matrix
+RS_COV <- as.matrix(read.table("RS_mapped_poly.cov")) # read in the genetic covariance matrix
 
-PCA <- eigen(COV) # extract the principal components from the COV matrix
+RS_PCA <- eigen(RS_COV) # extract the principal components from the COV matrix
 
 ## How much variance is explained by the first few PCs?
 
-var <- round(PCA$values/sum(PCA$values),3)
+RS_var <- round(RS_PCA$values/sum(RS_PCA$values),3)
 
-var[1:3] #[1] 0.189 0.025 0.010 (e=2)
+
+RS_var[1:3] #[1] 0.189 0.025 0.010 (e=2)
 
 # A "screeplot" of the eigenvalues of the PCA:
 
-barplot(var, 
+barplot(RS_var, 
         xlab="Eigenvalues of the PCA", 
         ylab="Proportion of variance explained")
 
 ## Bring in the bam.list file and extract the sample info:
 
-names <- read.table("RSBS_bam.list")
-names <- unlist(strsplit(basename(as.character(names[,1])), split = ".sorted.rmdup.bam"))
-split = strsplit(names, "_")
-pops <- data.frame(names[1:113], do.call(rbind, split[1:113]))
-names(pops) = c("Ind", "Pop", "Row", "Col")
+RS_names <- read.table("RS_mapped_bam.list")
+RS_names <- unlist(strsplit(basename(as.character(RS_names[,1])), split = ".sorted.rmdup.bam"))
+split = strsplit(RS_names, "_")
+RS_pops <- data.frame(RS_names[1:113], do.call(rbind, split[1:113]))
+names(RS_pops) = c("Ind", "Pop", "Row", "Col")
 
 ## A quick and humble PCA plot:
 
-plot(PCA$vectors[,1:2],
-     col=as.factor(pops[,2]),
+plot(RS_PCA$vectors[,1:2],
+     col=as.factor(RS_pops[,2]),
      xlab="PC1",ylab="PC2", 
      main="Genetic PCA")
      
 ## A more beautiful PCA plot using ggplot :)
 
-data=as.data.frame(PCA$vectors)
-data=data[,c(1:3)]
-data= cbind(data, pops)
+RS_data=as.data.frame(RS_PCA$vectors)
+RS_data=RS_data[,c(1:3)]
+RS_data= cbind(RS_data, RS_pops)
 
-cols=c("#377eB8","#EE9B00","#0A9396","#94D2BD","#FFCB69","#005f73","#E26D5C","#AE2012", "#6d597a", "#7EA16B","#d4e09b", "gray70", "#d71868", "#8e7cc3", "#93c47d")
+cols=c("#377eB8","#d71868","#0A9396","#94D2BD","#8e7cc3","#005f73","#E26D5C","#AE2012", "#6d597a", "#7EA16B","#d4e09b", "gray70", "gold", "khaki1", "orange")
 
-ggscatter(data, x = "V1", y = "V2",
+RS_PCA_plot <- ggscatter(RS_data, x = "V1", y = "V2",
           color = "Pop",
           mean.point = FALSE,
-          star.plot = FALSE) +
-  theme_bw(base_size = 13, base_family = "Times") +
+          star.plot = FALSE,
+          size = 5) +
+  theme_bw(base_size = 20, base_family = "Times") +
   theme(panel.background = element_blank(), 
         legend.background = element_blank(), 
         panel.grid = element_blank(), 
         plot.background = element_blank(), 
-        legend.text=element_text(size=rel(.7)), 
+        legend.text=element_text(size=rel(.9)), 
         axis.text = element_text(size=13), 
         legend.position = "bottom") +
-  labs(x = paste0("PC1: (",var[1]*100,"%)"), y = paste0("PC2: (",var[2]*100,"%)")) +
+  labs(x = paste0("PC1: (",RS_var[1]*100,"%)"), y = paste0("PC2: (",RS_var[2]*100,"%)")) +
   scale_color_manual(values=c(cols), name="Source population") +
   guides(colour = guide_legend(nrow = 2))
-
 
 ```
 
 
+```{r}
+BS_COV <- as.matrix(read.table("BS_mapped_poly_e2.cov"))
 
-Admixture clustering
+BS_PCA <- eigen(BS_COV)# extract the principal components from the COV matrix
+
+## How much variance is explained by the first few PCs?
+BS_var <- round(BS_PCA$values/sum(BS_PCA$values),3)
+BS_var[1:3] #[1] 0.196 0.028 0.010 (e=2)
+
+# A "screeplot" of the eigenvalues of the PCA:
+
+barplot(BS_var, 
+        xlab="Eigenvalues of the PCA", 
+        ylab="Proportion of variance explained")
+
+## Bring in the bam.list file and extract the sample info:
+
+BS_names <- read.table("BS_mapped_bam.list")
+BS_names <- unlist(strsplit(basename(as.character(BS_names[,1])), split = ".sorted.rmdup.bam"))
+BS_split = strsplit(BS_names, "_")
+BS_pops <- data.frame(BS_names[1:113], do.call(rbind, BS_split[1:113]))
+names(BS_pops) = c("Ind", "Pop", "Row", "Col")
+
+## A quick and humble PCA plot:
+
+plot(BS_PCA$vectors[,1:2],
+     col=as.factor(BS_pops[,2]),
+     xlab="PC1",ylab="PC2", 
+     main="Genetic PCA")
+     
+## A more beautiful PCA plot using ggplot :)
+
+BS_data=as.data.frame(BS_PCA$vectors)
+BS_data=BS_data[,c(1:3)]
+BS_data= cbind(BS_data, BS_pops)
+
+cols=c("#377eB8","#d71868","#0A9396","#94D2BD","#8e7cc3","#005f73","#E26D5C","#AE2012", "#6d597a", "#7EA16B","#d4e09b", "gray70", "gold", "khaki1", "orange")
+
+BS_PCA_plot <- ggscatter(BS_data, x = "V1", y = "V2",
+          color = "Pop",
+          mean.point = FALSE,
+          star.plot = FALSE,
+          size = 5) +
+  theme_bw(base_size = 20, base_family = "Times") +
+  theme(panel.background = element_blank(), 
+        legend.background = element_blank(), 
+        panel.grid = element_blank(), 
+        plot.background = element_blank(), 
+        legend.text=element_text(size=rel(.9)), 
+        axis.text = element_text(size=13), 
+        legend.position = "bottom") +
+  labs(x = paste0("PC1: (",BS_var[1]*100,"%)"), y = paste0("PC2: (",BS_var[2]*100,"%)")) +
+  scale_color_manual(values=c(cols), name="Source population") +
+  guides(colour = guide_legend(nrow = 2))
+```
+
+
+
+Admixture clustering Norway spruce mapping
 ```{r}
 
 # import the ancestry scores (these are the .Q files)
 
-q <- read.table("RSBS_poly.admix.3.Q", sep=" ", header=F)
+q <- read.table("RS_mapped_poly.admix.3.Q", sep=" ", header=F)
 
 K=dim(q)[2] #Find the level of K modeled
 
 ## order according to population code
-ord<-order(pops[,2])
+ord<-order(RS_pops[,2])
 
 # make the plot:
 barplot(t(q)[,ord],
@@ -102,15 +160,15 @@ barplot(t(q)[,ord],
         space=0,border=NA,
         xlab="Populations",ylab="Admixture proportions",
         main=paste0("Spruce K=",K))
-text(tapply(1:nrow(pops),pops[ord,2],mean),-0.05,unique(pops[ord,2]),xpd=T)
-abline(v=cumsum(sapply(unique(pops[ord,2]),function(x){sum(pops[ord,2]==x)})),col=1,lwd=1.2)
+text(tapply(1:nrow(RS_pops),RS_pops[ord,2],mean),-0.05,unique(RS_pops[ord,2]),xpd=T)
+abline(v=cumsum(sapply(unique(RS_pops[ord,2]),function(x){sum(RS_pops[ord,2]==x)})),col=1,lwd=1.2)
 ```
 
 making admixture pie chart map
 ```{r}
 ### This is probably the messiest way to do this, but going to create a df with the average admixture proportions for each population ###
 
-pop_admix <- bind_cols(pops,q) # add the admixture proportions for each sample to population data in a new df
+pop_admix <- bind_cols(RS_pops,q) # add the admixture proportions for each sample to population data in a new df
 
 #"2019" "2020" "2021" "2022" "2024" "2027" "2030" "2032" "2100" "2101" "2103" "2505" "MN1" 
 #[14] "MN2"  "WISC
@@ -210,17 +268,18 @@ ontario <- canada[canada$NAME == "Ontario",]
 canada_east <- bind_rows(quebec, nova_scotia, new_brunswick, ontario)
 
 us <- n_america[n_america$COUNTRY == "USA",c(-1,-2,-3)]
-east_states <- c("Connecticut","Maine","Massachusetts","New Hampshire","Rhode Island","Vermont","Delaware","District of Columbia","Florida","Georgia","Maryland","North Carolina","South Carolina","Virginia","West Virginia","Iowa","Missouri","Minnesota","New Jersey","New York","Pennsylvania","Illinois","Indiana","Michigan","Ohio","Wisconsin","Alabama","Kentucky","Mississippi","Tennessee")
+east_states <- c("Connecticut","Maine","Massachusetts","New Hampshire","Rhode Island","Vermont","Delaware","District of Columbia","Florida","Georgia","Maryland","North Carolina","South Carolina","Virginia","West Virginia","Iowa","Missouri","Minnesota","New Jersey","New York","Pennsylvania","Illinois","Indiana","Michigan","Ohio","Wisconsin","Alabama","Kentucky","Mississippi","Tennessee","Arkansas")
 us_east <- us[us$NAME %in% east_states,]
 
 total_east_coast <- bind_rows(canada_east,us_east)
 
+par(bg = 'lightsteelblue1')
 #plotting the map with the admixture proportions over it
-plot(total_east_coast[,6], reset=FALSE, col="white", main="Population Admixture Proportions")
-legend("topleft", c("Refugia", "Northern", "Black Spruce"), col = c("lightseagreen", "mediumpurple1", "sandybrown"), pch=20)
+plot(total_east_coast[,6], reset=FALSE, col="gray90", main="Population Admixture Proportions")
+legend("topleft", c("Refugia", "Northern", "Black Spruce"), col = c("darkolivegreen", "dodgerblue", "goldenrod1"), pch=20)
 make.admix.pie.plot(admix.proportions = pop_admix_avg,
                     coords = pop_coords,
-                    layer.colors = c("mediumpurple1", "lightseagreen", "sandybrown"),
+                    layer.colors = c("goldenrod1", "dodgerblue", "darkolivegreen"),
                     radii = 1.5,
                     add = TRUE,
                     x.lim = NULL,
